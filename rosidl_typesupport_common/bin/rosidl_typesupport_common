@@ -3,12 +3,12 @@
 import argparse
 import sys
 
-from rosidl_typesupport_c import generate_c
-
+from rosidl_typesupport_common import generate_common
+import importlib
 
 def main(argv=sys.argv[1:]):
     parser = argparse.ArgumentParser(
-        description='Generate the C type support to handle ROS messages.',
+        description='Generate the Language specific type support to handle ROS messages.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         '--generator-arguments-file',
@@ -19,9 +19,15 @@ def main(argv=sys.argv[1:]):
         required=True,
         nargs='+',
         help='The typesupports to be used')
+    parser.add_argument(
+        '--package',
+        required=True,
+        nargs='+',
+        help='The language-specific package to be used')
     args = parser.parse_args(argv)
 
-    return generate_c(args.generator_arguments_file, args.typesupports)
+    lang = importlib.import_module(args.package)
+    return lang.generate(args.generator_arguments_file, args.typesupports)
 
 
 if __name__ == '__main__':
